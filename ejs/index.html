@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+</head>
+<body>
+	<canvas width="1200" height="600" id="myCan01" style="display:none;">
+		YOUR BROWSER NOT SUPPORT CANVAS!
+	</canvas>
+	<canvas width="1200" height="600" id="myCan02">
+		YOUR BROWSER NOT SUPPORT CANVAS!
+	</canvas>
+	<script type="text/javascript">
+		var canOne = document.querySelector("#myCan01");
+		var canTwo = document.querySelector("#myCan02");
+		var ctx = canOne.getContext("2d");
+		var ctx2 = canTwo.getContext("2d");
+		function doFillCircle(){
+			var m = 4, n = 4, i = 0, data = getFillData();
+			//console.dir(data);
+			ctx2.fillStyle = "lightGray";
+			while(m <= 600){
+				n = 4;
+				while(n <= 1200){
+					ctx2.fillStyle = data[i++] === 1 ? "rgba(0,106,180,1)" : "rgba(0,0,0,.05)";
+					ctx2.beginPath();
+					ctx2.arc(n, m, 4, 0, Math.PI*2);
+					ctx2.fill();
+					ctx2.closePath();
+					n += 10;
+				}
+				m += 10;
+			}
+		};
+		function getFillData(){
+			var m = 4, n = 4, data = ctx.getImageData(0, 0, 1200, 600).data, arr = [], i = 0;
+			while(m <= 600){
+				n = 4;
+				while(n <= 1200){
+					(data[4*(m*1200+n)] === 255) ? arr[i++] = 1: arr[i++] = 0;
+					n += 10;
+				}
+				m += 10;
+			}
+			return arr;
+		};
+		function drawGrid(color, width, height){
+			var m = 0, n = 0;
+			ctx.strokeStyle = color;
+			ctx.lineWidth = 1;
+			while(m <= 600){
+				ctx.beginPath();
+				ctx.moveTo(0, m);
+				ctx.lineTo(1200, m);
+				ctx.stroke();
+				ctx.closePath();
+				m += height;
+			}
+			while(n <= 1200){
+				ctx.beginPath();
+				ctx.moveTo(n, 0);
+				ctx.lineTo(n, 600);
+				ctx.stroke();
+				ctx.closePath();
+				n += width;
+			}
+
+		};
+		var drawImage = function(){
+			var img = new Image(), deg = 0;
+			img.onload = function(){
+				setInterval(function(ctx){
+					deg += 10;
+					console.log(deg%1200);
+					ctx.beginPath();
+					ctx.globalCompositeOperation = "source-in";
+					ctx.drawImage(this, deg%1200, 0, 1200, 600);
+					ctx.closePath();
+				}.bind(this, ctx2), 100);
+			}
+			img.src = "../images/01.jpg";
+		};
+		function drawText(str){
+			ctx.textAlign = "center";
+			ctx.textBaseline = "middle";
+			ctx.font = "280px Microsoft Yahei";
+			ctx.fillStyle = "red";
+			ctx.fillText(str, 600, 300);
+		};
+		drawText("<%= name %>");
+		doFillCircle();
+		drawImage();
+	</script>
+</body>
+</html>

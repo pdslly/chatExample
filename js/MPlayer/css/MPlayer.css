@@ -1,0 +1,17 @@
+.MPlear,.MPlear li,.MPlear>.progress:after{background-image:url(../img/icon.png);}
+.MPlear{width:286px;height:122px;position:fixed;left:100px;top:100px;background-position:-205px 0;}
+.MPlear>.screen{margin:10px auto;width:240px;font-size:0; }
+.MPlear>.control{width:100%;text-align:center;position:absolute;bottom:2px;font-size:0;}
+.MPlear>.progress{width:50%;height:1px;background:#fff;position:absolute;top:55px;cursor:pointer;}
+.MPlear>.progress:after{content:"";display:inline-block;width:18px;height:18px;background-position:0 -53px;position:absolute;top:-8px;left:calc(100% - 10px);}
+.MPlear .time{width:80px;font-size:30px;padding-right:10px;text-align:center;color:#fff;}
+.MPlear .scroll{width:150px;font-size:16px;color:#fff;}
+.MPlear .time,.MPlear .scroll,.MPlear li{display:inline-block;vertical-align:middle;}
+.MPlear li{list-style:none;cursor:pointer;}
+.MPlear .status{width:52px;height:52px;background-position:-100px -36px;margin:0 46px;}
+.MPlear .pause{background-position:-153px -36px;}
+.MPlear .prev{background-position:-38px -50px;}
+.MPlear .prev:hover{background-position:-18px -50px;}
+.MPlear .next{background-position:-58px -50px;}
+.MPlear .next:hover{background-position:-79px -50px;}
+.MPlear .prev,.MPlear .next{width:19px;height:22px;}

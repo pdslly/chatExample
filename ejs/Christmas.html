@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<style type="text/css">
+	*{padding:0;margin:0;}
+	.container{width:100%;height:100%;position:absolute;overflow:hidden;min-height:720px;min-width:1280px;}
+	</style>
+</head>
+<body>
+	<div class="container">
+		<canvas id="mainCan" style="background:lightblue;">
+			YOUR BROWSER CAN NOT SUPPORT CANVAS!
+		</canvas>
+	</div>
+	<input id="music" type="hidden" value="<%= musics %>">
+	<script type="text/javascript" src="../js/requestAnimationFrame.js"></script>
+	<script type="text/javascript" src="../js/MPlayer/MPlayer.js"></script>
+	<script type="text/javascript">
+		"use strict";
+		var canOne = document.querySelector("#mainCan");
+		function Christmas(ECan){
+			var self = this;
+			this.gap = 8;
+			this.can = ECan;
+			this.ctx = ECan.getContext("2d");
+			this.param = this.initParam();
+			this.TCtx = this.createCanvas(600, 400);
+			this.snowArr = null;
+			this.dots = null;
+			this.shake = 0.35;
+			this.snowParticalSize = 1000;
+			this.images = {};
+			this.loadImages();
+			window.onresize = function(){
+				self.setFullScreen();
+			};
+		}
+
+		Christmas.prototype = {
+			initialize(){
+				this.setFullScreen();
+				this.drawText("<%= name %>");
+				this.dots = this.getTextCoord();
+				this.drawCircle(this.dots);
+				this.drawBgImg();
+				this.initSnow();
+				this.doAnim();
+			},
+			drawText(text){
+				const {width, height} = this.TCtx.canvas, FONTSIZE = 600;
+				this.setFontSize(FONTSIZE);
+				var s = Math.min(FONTSIZE,
+		                    (width / this.TCtx.measureText(text).width) * 0.8 * FONTSIZE, 
+		                    (height / FONTSIZE) *  0.45 * FONTSIZE);
+		        this.setFontSize(s);
+		        this.TCtx.textAlign = "center";
+				this.TCtx.textBaseline = "bottom";
+		        this.TCtx.fillText(text, width/2, height/2);
+		        /*this.setFontSize(FONTSIZE);
+		        s = Math.min(FONTSIZE,
+		                    (width / this.TCtx.measureText("圣诞快乐").width) * 0.8 * FONTSIZE, 
+		                    (height / FONTSIZE) *  0.45 * FONTSIZE);
+		        this.setFontSize(s);*/
+		        this.setFontSize(120);
+				this.TCtx.textBaseline = "top";
+				this.TCtx.fillText("快乐每一天", width/2, height/2);
+			},
+			setFontSize(S){
+				this.TCtx.font = "bold "+ S +"px SimHei";
+			},
+			getRandomColor(){
+				return "#"+("000000"+(~~(Math.random()*16777215+0.5)).toString(16)).slice(-6);
+			},
+			drawCircle(coords){
+				const dots = coords.dots,
+					  gap = this.gap,
+					  len = dots.length;
+				this.shake = -this.shake;
+				for(var i = 0; i < len; i++){
+					this.ctx.fillStyle = "rgba(255,255,255,"+(Math.random()+0.4)+")";
+					this.ctx.beginPath();
+					this.ctx.arc(dots[i].x+this.shake, dots[i].y+this.shake, gap/2, 0, Math.PI*2);
+					this.ctx.fill();
+					this.ctx.closePath();
+				}
+			},
+			getTextCoord(){
+				const {width, height} = this.TCtx.canvas;
+				var pixels = this.TCtx.getImageData(0, 0, width, height).data,
+					gap = this.gap,
+					_w = this.can.width - 700,
+					_h = this.can.height - 700,
+					x = 0,
+					y = 0,
+					fx = width,
+					fy = height,
+					dots = [],
+					w = 0,
+					h = 0;
+
+				for (var p = 0; p < pixels.length; p += (4 * gap)) {
+				    if (pixels[p + 3] > 0) {
+				        dots.push({
+				            x: x + _w,
+				            y: y + _h
+				        });
+
+				        w = x > w ? x : w;
+				        h = y > h ? y : h;
+				        fx = x < fx ? x : fx;
+				        fy = y < fy ? y : fy;
+				    }
+
+				    x += gap;
+
+				    if (x >= width) {
+				        x = 0;
+				        y += gap;
+				        p += gap * 4 * width;
+				    }
+				};
+
+				return { dots: dots, w: w + fx, h: h + fy };
+			},
+			createCanvas(width, height){
+				var ECan = document.createElement("canvas"),
+					ctx = ECan.getContext("2d");
+				ECan.setAttribute("width", width+"px");
+				ECan.setAttribute("height", height+"px");
+				ECan.style.cssText = "display:none;";
+				document.body.appendChild(ECan);
+				return ctx;
+			},
+			setFullScreen(){
+				const {W, H} = this.param;
+				this.can.setAttribute("width", W+"px");
+				this.can.setAttribute("height", H+"px");
+			},
+			initParam(){
+				var pCon = this.can.offsetParent;
+				return {
+					W: pCon.offsetWidth,
+					H: pCon.offsetHeight,
+				}
+			},
+			loadImages(){
+				this.loadImage("../images/bg.jpg", "bg");
+				this.loadImage("../images/snow.png", "snow");
+			},
+			loadImage: (function(){
+				var done = [], i = 0;
+				function doneFn(){
+					if( done.every(function(item){ return item === 1 }) ){
+						this.initialize();
+					}
+				}
+				return function(iSrc, tag){
+					var img = this.images[tag] = new Image(), index = i++, self = this;
+					done[index] = 0;
+					img.onload = function(){
+						done[index] = 1;
+						doneFn.bind(self)();
+					};
+					img.src = iSrc;
+				}
+			})(),
+			drawBgImg(){
+				var self = this;
+				const {W, H} = this.param;
+				this.ctx.drawImage(self.images["bg"], 0, 0, W, H);
+			},
+			drawSnow(snowArr, index){
+				this.ctx.fillStyle = "rgba(255,255,255,"+snowArr[index+2]/100+")";
+				this.ctx.beginPath();
+				this.ctx.arc(snowArr[index], snowArr[index+1], snowArr[index+5]/100, 0, Math.PI*2 );
+				this.ctx.fill();
+				this.ctx.closePath();
+			},
+			snowAnim(){
+				const SIZE = this.snowParticalSize*6, {W, H} = this.param;
+				var i = 0, snowArr = this.snowArr;
+				for(; i < SIZE; i+=6){
+					snowArr[i] += snowArr[i+3]; //coord_X
+					snowArr[i+1] += snowArr[i+4]; //coord_Y
+					snowArr[i] = snowArr[i] > W ? 0 : snowArr[i];
+					snowArr[i+1] = snowArr[i+1] > H ? 0 : snowArr[i+1];
+					this.drawSnow(snowArr, i);
+				}
+			},
+			initSnow(){
+				const SIZE = this.snowParticalSize*6, {W, H} = this.param;
+				var snowArr = this.snowArr = new Uint16Array(SIZE), i = 0;
+				for(; i < SIZE; i+=6){
+					snowArr[i] = Math.round(Math.random()*W); //coord_X
+					snowArr[i+1] = Math.round(Math.random()*H); //coord_Y
+					snowArr[i+2] = Math.round(Math.random()*100); //opacity 100%
+					snowArr[i+3] = Math.round(Math.random()*5+1); //speed_X
+					snowArr[i+4] = Math.round(Math.random()*5+1); //speed_Y
+					snowArr[i+5] = Math.round(Math.random()*300); //range
+					this.drawSnow(snowArr, i);
+				}
+			},
+			doAnim(){
+				var self = this;
+				const {W, H} = this.param;
+				function Anim(){
+					self.ctx.clearRect(0, 0, W, H);
+					self.drawBgImg();
+					self.drawCircle(self.dots);
+					self.snowAnim.bind(self)();
+					requestAnimationFrame(Anim);
+				};
+				requestAnimationFrame(Anim);
+			}
+		}
+		new Christmas(canOne);
+		var val = document.getElementById("music").value;
+		new MPlayer({top:"10px", left:"10px"}).loadMusic(JSON.parse(val));
+	</script>
+</body>
+</html>

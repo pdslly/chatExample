@@ -1,0 +1,20 @@
+{
+	"appenders":[
+		{        
+		    "type": "dateFile",                 
+		    "filename": "e:/node/test/server/log",    
+		    "pattern": "/logInfo-yyyyMMddhh.txt",  
+		    "absolute": true,                   
+		    "alwaysIncludePattern": true,     
+		    "category": "logInfo"           
+	  	},
+	  	{        
+		    "type": "dateFile",                 
+		    "filename": "e:/node/test/server/log",    
+		    "pattern": "/logError-yyyyMMddhh.txt",  
+		    "absolute": true,                   
+		    "alwaysIncludePattern": true,     
+		    "category": "logError"           
+	  	}
+	]
+}
